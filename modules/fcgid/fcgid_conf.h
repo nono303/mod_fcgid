@@ -19,7 +19,7 @@
 #define FCGID_CONF_H
 
 #define MODFCGID_COPYRIGHT \
-  "Copyright 2009-2016 The Apache Software Foundation."
+  "Copyright 2009-2020 The Apache Software Foundation."
 
 #define MODFCGID_VERSION_MAJOR  2
 #define MODFCGID_VERSION_MINOR  3
@@ -138,7 +138,7 @@ typedef struct {
  * to limit shared memory use
  */
 #define INITENV_KEY_LEN 64
-#define INITENV_VAL_LEN 128
+#define INITENV_VAL_LEN 256
 #define INITENV_CNT 64
 typedef struct {
     char initenv_key[INITENV_CNT][INITENV_KEY_LEN];
