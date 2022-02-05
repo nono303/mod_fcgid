@@ -129,7 +129,7 @@ void spawn_control_init(server_rec * main_server, apr_pool_t * configpool)
     if ((rv = apr_pool_create(&g_stat_pool, configpool)) != APR_SUCCESS) {
         /* Fatal error */
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, main_server,
-                     "mod_fcgid: can't create stat pool");
+                     "can't create stat pool");
         exit(1);
     }
 }
@@ -170,7 +170,7 @@ int is_spawn_allowed(server_rec * main_server, fcgid_command * command)
     /* Total process count higher than up limit? */
     if (g_total_process >= sconf->max_process_count) {
         ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, main_server,
-                     "mod_fcgid: %s total process count %d >= %d, skip the spawn request",
+                     "%s total process count %d >= %d, skip the spawn request",
                      command->cgipath, g_total_process, sconf->max_process_count);
         return 0;
     }
@@ -207,7 +207,7 @@ int is_spawn_allowed(server_rec * main_server, fcgid_command * command)
         /* Score is higher than up limit? */
         if (current_node->score >= sconf->spawnscore_uplimit) {
             ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, main_server,
-                         "mod_fcgid: %s spawn score %d >= %d, skip the spawn request",
+                         "%s spawn score %d >= %d, skip the spawn request",
                          command->cgipath, current_node->score,
                          sconf->spawnscore_uplimit);
             return 0;
@@ -218,7 +218,7 @@ int is_spawn_allowed(server_rec * main_server, fcgid_command * command)
          */
         if (current_node->process_counter >= current_node->max_class_process_count) {
             ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, main_server,
-                         "mod_fcgid: too many %s processes (current:%d, max:%d), skip the spawn request",
+                         "too many %s processes (current:%d, max:%d), skip the spawn request",
                          command->cgipath, current_node->process_counter,
                          current_node->max_class_process_count);
             return 0;
@@ -260,5 +260,5 @@ int is_kill_allowed(server_rec * main_server, fcgid_procnode * procnode)
 void fcgid_errfn (apr_pool_t *p, apr_status_t err, const char *description)
 {
     ap_log_error(APLOG_MARK, APLOG_ERR, err, NULL,
-                "mod_fcgid: error spawning process: %s", description);
+                "error spawning process: %s", description);
 }

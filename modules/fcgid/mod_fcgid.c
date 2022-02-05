@@ -226,7 +226,7 @@ static int fcgid_handler(request_rec * r)
              default_build_command(&command, &argv, r, r->pool,
                                    &e_info)) != APR_SUCCESS) {
             ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
-                          "mod_fcgid: don't know how to spawn wrapper child process: %s",
+                          "don't know how to spawn wrapper child process: %s",
                           r->filename);
             return HTTP_INTERNAL_SERVER_ERROR;
         }
@@ -234,7 +234,7 @@ static int fcgid_handler(request_rec * r)
         if ((rv = cgi_build_command(&command, &argv, r, r->pool,
                                     &e_info)) != APR_SUCCESS) {
             ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, r,
-                          "mod_fcgid: don't know how to spawn child process: %s",
+                          "don't know how to spawn child process: %s",
                           r->filename);
             return HTTP_INTERNAL_SERVER_ERROR;
         }
@@ -245,7 +245,7 @@ static int fcgid_handler(request_rec * r)
                  apr_stat(&r->finfo, command, APR_FINFO_IDENT,
                           r->pool)) != APR_SUCCESS) {
                 ap_log_rerror(APLOG_MARK, APLOG_WARNING, rv, r,
-                              "mod_fcgid: can't get %s file info", command);
+                              "can't get %s file info", command);
                 return HTTP_NOT_FOUND;
             }
         }
@@ -257,7 +257,7 @@ static int fcgid_handler(request_rec * r)
 
         if (strlen(command) >= fcgid_min(FCGID_PATH_MAX, FCGID_CMDLINE_MAX)) {
             ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,
-                          "mod_fcgid: Executable path length exceeds compiled-in limit: %s",
+                          "Executable path length exceeds compiled-in limit: %s",
                           command);
             return HTTP_INTERNAL_SERVER_ERROR;
         }
@@ -552,7 +552,7 @@ static int mod_fcgid_check_auth(request_rec *r,
     if (auth_check_mode == FCGID_AUTH_CHECK_AUTHN
         && (res = ap_get_basic_auth_pw(r, &password)) != OK) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,
-                      "mod_fcgid: authenticator requires "
+                      "authenticator requires "
                       "basic HTTP auth credentials");
         return res;
     }
@@ -600,7 +600,7 @@ static int mod_fcgid_check_auth(request_rec *r,
         && apr_table_get(r->headers_out, "Location") == NULL) {
         /* Pass */
         ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
-                      "mod_fcgid: %s%s to access %s succeeded",
+                      "%s%s to access %s succeeded",
                       role_log_msg, user_log_msg, r->uri);
 
         /* Modify headers: An Authorizer application's 200 response may include headers
@@ -623,7 +623,7 @@ static int mod_fcgid_check_auth(request_rec *r,
             add_err_msg = "; internal redirection not allowed";
         }
         ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,
-                      "mod_fcgid: %s%s to access %s failed, reason: "
+                      "%s%s to access %s failed, reason: "
                       "script returned status %d%s",
                       role_log_msg, user_log_msg, r->uri, r->status,
                       add_err_msg);
@@ -631,7 +631,7 @@ static int mod_fcgid_check_auth(request_rec *r,
         /* Handle error */
         if (!authoritative) {
             ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
-                          "mod_fcgid: not authoritative");
+                          "not authoritative");
             return DECLINED;
         }
         else {
@@ -664,13 +664,13 @@ static void initialize_child(apr_pool_t * pchild, server_rec * main_server)
 
     if ((rv = proctable_child_init(main_server, pchild)) != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, main_server,
-                     "mod_fcgid: Can't initialize shared memory or mutex in child");
+                     "Can't initialize shared memory or mutex in child");
         return;
     }
 
     if ((rv = procmgr_child_init(main_server, pchild)) != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, main_server,
-                     "mod_fcgid: Can't initialize process manager");
+                     "Can't initialize process manager");
         return;
     }
 
@@ -705,7 +705,7 @@ fcgid_init(apr_pool_t * config_pool, apr_pool_t * plog, apr_pool_t * ptemp,
     if ((rv =
          proctable_post_config(main_server, config_pool)) != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, main_server,
-                     "mod_fcgid: Can't initialize shared memory or mutex");
+                     "Can't initialize shared memory or mutex");
         return rv;
     }
 
@@ -713,7 +713,7 @@ fcgid_init(apr_pool_t * config_pool, apr_pool_t * plog, apr_pool_t * ptemp,
     if ((rv =
          procmgr_post_config(main_server, config_pool)) != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, main_server,
-                     "mod_fcgid: Can't initialize process manager");
+                     "Can't initialize process manager");
         return rv;
     }
 

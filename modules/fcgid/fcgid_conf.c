@@ -851,7 +851,7 @@ const char *set_win32_prevent_process_orphans(cmd_parms *cmd, void *dummy,
 
         if (config->hJobObjectForAutoCleanup == NULL) {
             ap_log_perror(APLOG_MARK, APLOG_STARTUP|APLOG_ERR, apr_get_os_error(),
-                          cmd->pool, "mod_fcgid: unable to create job object.");
+                          cmd->pool, "unable to create job object.");
             return SETUP_ERR_MSG;
         }
 
@@ -864,7 +864,7 @@ const char *set_win32_prevent_process_orphans(cmd_parms *cmd, void *dummy,
                                     JobObjectExtendedLimitInformation,
                                     &job_info, sizeof(job_info)) == 0) {
             ap_log_perror(APLOG_MARK, APLOG_STARTUP|APLOG_ERR, apr_get_os_error(),
-                          cmd->pool, "mod_fcgid: unable to set job object information.");
+                          cmd->pool, "unable to set job object information.");
             CloseHandle(config->hJobObjectForAutoCleanup);
             config->hJobObjectForAutoCleanup = NULL;
             return SETUP_ERR_MSG;
@@ -1145,7 +1145,7 @@ const char *set_cmd_options(cmd_parms *cmd, void *dummy, const char *args)
     }
 
     if ((overflow = set_cmd_envvars(cmdopts->cmdenv, envvars, NULL)) != 0) {
-        return apr_psprintf(cmd->pool, "mod_fcgid: environment variable table "
+        return apr_psprintf(cmd->pool, "environment variable table "
                             "overflow; increase INITENV_CNT in fcgid_pm.h from"
                             " %d to at least %d",
                             INITENV_CNT, INITENV_CNT + overflow);
@@ -1191,7 +1191,7 @@ void get_cmd_options(request_rec *r, const char *cmdpath,
 
     if ((overflow = set_cmd_envvars(cmdenv, sconf->default_init_env, dconf->default_init_env)) != 0) {
         ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
-                      "mod_fcgid: %d environment variables dropped; increase "
+                      "%d environment variables dropped; increase "
                       "INITENV_CNT in fcgid_pm.h from %d to at least %d",
                       overflow,
                       INITENV_CNT,

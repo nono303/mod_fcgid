@@ -229,7 +229,7 @@ static void scan_idlelist_zombie(server_rec * main_server)
         thepid = current_node->proc_id.pid;
         if (proc_wait_process(main_server, current_node) == APR_CHILD_DONE) {
             ap_log_error(APLOG_MARK, APLOG_WARNING, 0, main_server,
-                         "mod_fcgid: cleanup zombie process %"
+                         "cleanup zombie process %"
                          APR_PID_T_FMT, thepid);
 
             /* Unlink from check list */
@@ -338,7 +338,7 @@ static void scan_errorlist(server_rec * main_server)
 #else
             ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, main_server,
 #endif
-                         "mod_fcgid: process %" APR_PID_T_FMT
+                         "process %" APR_PID_T_FMT
                          " graceful kill fail, sending SIGKILL",
                          current_node->proc_id.pid);
             proc_kill_force(current_node, main_server);
@@ -359,7 +359,7 @@ static void scan_errorlist(server_rec * main_server)
 
     if (graceful_terminations) {
         ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, main_server,
-                     "mod_fcgid: gracefully terminated %d processes",
+                     "gracefully terminated %d processes",
                      graceful_terminations);
     }
 }
@@ -550,7 +550,7 @@ fastcgi_spawn(fcgid_command * command, server_rec * main_server,
     if (free_list_header->next_index == 0) {
         proctable_pm_unlock(main_server);
         ap_log_error(APLOG_MARK, APLOG_WARNING, 0, main_server,
-                     "mod_fcgid: too much processes, please increase FCGID_MAX_APPLICATION");
+                     "too much processes, please increase FCGID_MAX_APPLICATION");
         return;
     }
     procnode = &proctable_array[free_list_header->next_index];
@@ -595,7 +595,7 @@ fastcgi_spawn(fcgid_command * command, server_rec * main_server,
                           proctable_array);
 
         ap_log_error(APLOG_MARK, APLOG_WARNING, rv, main_server,
-                     "mod_fcgid: can't create pool for process");
+                     "can't create pool for process");
         return;
     }
     /* Set up longer, system defaults before falling into parsing fixed-limit
@@ -616,7 +616,7 @@ fastcgi_spawn(fcgid_command * command, server_rec * main_server,
          proc_spawn_process(command->cmdline, &procinfo,
                             procnode)) != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_WARNING, rv, main_server,
-                     "mod_fcgid: spawn process %s error", command->cgipath);
+                     "spawn process %s error", command->cgipath);
 
         apr_pool_destroy(procnode->proc_pool);
         link_node_to_list(main_server, free_list_header,
@@ -628,7 +628,7 @@ fastcgi_spawn(fcgid_command * command, server_rec * main_server,
         link_node_to_list(main_server, idle_list_header,
                           procnode, proctable_array);
         ap_log_error(APLOG_MARK, APLOG_INFO, 0, main_server,
-                     "mod_fcgid: server %s:%s(%" APR_PID_T_FMT ") started",
+                     "%s:%s(%" APR_PID_T_FMT ") started",
                      command->server_hostname[0] ?
                          command->server_hostname : "(unknown)",
                      command->cgipath,

@@ -178,7 +178,7 @@ static apr_status_t fcgid_header_bucket_read(apr_bucket * b,
                     }
                 }
                 ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, ctx->ipc.request,
-                              "mod_fcgid: stderr: %s", line);
+                              "stderr: %s", line);
                 /* if we did not find \r or \n then we're done 
                  * (we hit the end of the logbuf) */
                 if (end == NULL) {

@@ -112,7 +112,7 @@ apr_status_t fcgid_mutex_create(apr_global_mutex_t **mutex,
     rv = apr_global_mutex_create(mutex, lockfile, mechanism, pconf);
     if (rv != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, s,
-                     "mod_fcgid: Can't create global %s mutex", mutex_type);
+                     "Can't create global %s mutex", mutex_type);
         return rv;
     }
 
@@ -120,7 +120,7 @@ apr_status_t fcgid_mutex_create(apr_global_mutex_t **mutex,
     rv = ap_unixd_set_global_mutex_perms(*mutex);
     if (rv != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, s,
-                     "mod_fcgid: Can't set global %s mutex perms", mutex_type);
+                     "Can't set global %s mutex perms", mutex_type);
         return rv;
     }
 #endif

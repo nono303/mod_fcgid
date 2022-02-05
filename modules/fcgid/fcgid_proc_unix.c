@@ -229,7 +229,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
     if (len + 1 == sizeof(unix_addr.sun_path)
         || len >= sizeof procnode->socket_path) {
         ap_log_error(APLOG_MARK, APLOG_ERR, 0, main_server,
-                     "mod_fcgid: socket path length exceeds compiled-in limits");
+                     "socket path length exceeds compiled-in limits");
         return APR_EGENERAL;
     }
 
@@ -248,7 +248,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
     /* Create the socket */
     if ((unix_socket = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
         ap_log_error(APLOG_MARK, APLOG_ERR, errno, main_server,
-                     "mod_fcgid: couldn't create unix domain socket");
+                     "couldn't create unix domain socket");
         return errno;
     }
 
@@ -274,7 +274,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
     umask(omask);
     if (retcode < 0) {
         ap_log_error(APLOG_MARK, APLOG_ERR, errno, main_server,
-                     "mod_fcgid: couldn't bind unix domain socket %s",
+                     "couldn't bind unix domain socket %s",
                      unix_addr.sun_path);
         close(unix_socket);
         return errno;
@@ -287,7 +287,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
                             APR_FPROT_UREAD|APR_FPROT_UWRITE|APR_FPROT_UEXECUTE);
     if (rv != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_CRIT, rv, main_server,
-                     "mod_fcgid: Couldn't set permissions on unix domain socket %s",
+                     "Couldn't set permissions on unix domain socket %s",
                      unix_addr.sun_path);
         return rv;
     }
@@ -295,7 +295,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
     /* Listen the socket */
     if (listen(unix_socket, DEFAULT_FCGID_LISTENBACKLOG) < 0) {
         ap_log_error(APLOG_MARK, APLOG_ERR, errno, main_server,
-                     "mod_fcgid: couldn't listen on unix domain socket");
+                     "couldn't listen on unix domain socket");
         close(unix_socket);
         return errno;
     }
@@ -304,7 +304,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
     if (!geteuid()) {
         if (chown(unix_addr.sun_path, ap_unixd_config.user_id, -1) < 0) {
             ap_log_error(APLOG_MARK, APLOG_ERR, errno, main_server,
-                         "mod_fcgid: couldn't change owner of unix domain socket %s",
+                         "couldn't change owner of unix domain socket %s",
                          unix_addr.sun_path);
             close(unix_socket);
             return errno;
@@ -317,7 +317,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
         if (oldflags < 0) {
             ap_log_error(APLOG_MARK, APLOG_WARNING, apr_get_os_error(),
                          procinfo->main_server,
-                         "mod_fcgid: fcntl F_GETFD failed");
+                         "fcntl F_GETFD failed");
             close(unix_socket);
             return errno;
         }
@@ -326,7 +326,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
         if (fcntl(unix_socket, F_SETFD, oldflags) < 0) {
             ap_log_error(APLOG_MARK, APLOG_WARNING, apr_get_os_error(),
                          procinfo->main_server,
-                         "mod_fcgid: fcntl F_SETFD failed");
+                         "fcntl F_SETFD failed");
             close(unix_socket);
             return errno;
         }
@@ -338,7 +338,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
     if (!proc_environ) {
         ap_log_error(APLOG_MARK, APLOG_WARNING, apr_get_os_error(),
                      procinfo->main_server,
-                     "mod_fcgid: can't build environment variables");
+                     "can't build environment variables");
         close(unix_socket);
         return APR_ENOMEM;
     }
@@ -360,7 +360,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
         || (rv = apr_procattr_child_errfn_set(procattr, fcgid_errfn)) != APR_SUCCESS
 		|| (rv = apr_procattr_child_in_set(procattr, file, NULL)) != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_ERR, rv, procinfo->main_server,
-                     "mod_fcgid: couldn't set child process attributes: %s",
+                     "couldn't set child process attributes: %s",
                      unix_addr.sun_path);
         close(unix_socket);
         return rv;
@@ -394,7 +394,7 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
     if (rv != APR_SUCCESS) {
         memset(&procnode->proc_id, 0, sizeof(procnode->proc_id));
         ap_log_error(APLOG_MARK, APLOG_ERR, rv, procinfo->main_server,
-                     "mod_fcgid: can't run %s", wargv[0]);
+                     "can't run %s", wargv[0]);
     }
 
     return rv;
@@ -539,7 +539,7 @@ apr_status_t proc_connect_ipc(fcgid_procnode *procnode, fcgid_ipc *ipc_handle)
                 sizeof(unix_addr)) < 0) {
         ap_log_rerror(APLOG_MARK, APLOG_DEBUG, apr_get_os_error(),
                       ipc_handle->request,
-                      "mod_fcgid: can't connect unix domain socket: %s",
+                      "can't connect unix domain socket: %s",
                       procnode->socket_path);
         return APR_ECONNREFUSED;
     }
@@ -547,7 +547,7 @@ apr_status_t proc_connect_ipc(fcgid_procnode *procnode, fcgid_ipc *ipc_handle)
     /* Set nonblock option */
     if ((rv = set_socket_nonblock(handle_info->handle_socket)) != APR_SUCCESS) {
         ap_log_rerror(APLOG_MARK, APLOG_DEBUG, rv, ipc_handle->request,
-                      "mod_fcgid: can't make unix domain socket nonblocking");
+                      "can't make unix domain socket nonblocking");
         return rv;
     }
 
@@ -584,7 +584,7 @@ apr_status_t proc_read_ipc(fcgid_ipc *ipc_handle, const char *buffer,
     if (retcode == -1 && !APR_STATUS_IS_EAGAIN(errno)) {
         ap_log_rerror(APLOG_MARK, APLOG_WARNING, errno,
                       ipc_handle->request,
-                      "mod_fcgid: error reading data from FastCGI server");
+                      "error reading data from FastCGI server");
         return errno;
     }
 
@@ -598,13 +598,13 @@ apr_status_t proc_read_ipc(fcgid_ipc *ipc_handle, const char *buffer,
     if (retcode == -1) {
         ap_log_rerror(APLOG_MARK, APLOG_WARNING, errno,
                       ipc_handle->request,
-                      "mod_fcgid: error polling unix domain socket");
+                      "error polling unix domain socket");
         return errno;
     }
     else if (retcode == 0) {
         ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0,
                       ipc_handle->request,
-                      "mod_fcgid: read data timeout in %d seconds",
+                      "read data timeout in %d seconds",
                       ipc_handle->communation_timeout);
         return APR_ETIMEDOUT;
     }
@@ -619,13 +619,13 @@ apr_status_t proc_read_ipc(fcgid_ipc *ipc_handle, const char *buffer,
     if (retcode == 0) {
         ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0,
                       ipc_handle->request,
-                      "mod_fcgid: error reading data, FastCGI server closed connection");
+                      "error reading data, FastCGI server closed connection");
         return APR_EPIPE;
     }
 
     ap_log_rerror(APLOG_MARK, APLOG_WARNING, errno,
                   ipc_handle->request,
-                  "mod_fcgid: error reading data from FastCGI server");
+                  "error reading data from FastCGI server");
     return errno;
 }
 
@@ -709,7 +709,7 @@ static apr_status_t socket_writev(fcgid_ipc *ipc_handle,
 
     ap_log_rerror(APLOG_MARK, APLOG_INFO, rv,
                   ipc_handle->request,
-                  "mod_fcgid: error writing data to FastCGI server");
+                  "error writing data to FastCGI server");
     return rv;
 }
 
@@ -781,7 +781,7 @@ apr_status_t proc_write_ipc(fcgid_ipc *ipc_handle,
         if ((rv = apr_bucket_read(e, &base, &len,
                                   APR_BLOCK_READ)) != APR_SUCCESS) {
             ap_log_rerror(APLOG_MARK, APLOG_WARNING, rv, ipc_handle->request,
-                          "mod_fcgid: can't read request from bucket");
+                          "can't read request from bucket");
             return rv;
         }
 
@@ -884,6 +884,6 @@ void proc_print_exit_info(fcgid_procnode *procnode, int exitcode,
 
     /* Print log now */
     ap_log_error(APLOG_MARK, loglevel, 0, main_server,
-                 "mod_fcgid: process %s(%" APR_PID_T_FMT ") exit(%s), %s",
+                 "process %s(%" APR_PID_T_FMT ") exit(%s), %s",
                  procnode->executable_path, procnode->proc_id.pid, diewhy, signal_info);
 }

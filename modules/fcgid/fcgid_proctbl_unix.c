@@ -144,7 +144,7 @@ proctable_post_config(server_rec * main_server, apr_pool_t * configpool)
                              main_server->process->pconf)) != APR_SUCCESS)
     {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, main_server,
-                     "mod_fcgid: Can't create shared memory for size %" APR_SIZE_T_FMT " bytes",
+                     "Can't create shared memory for size %" APR_SIZE_T_FMT " bytes",
                      shmem_size);
         exit(1);
     }
@@ -188,7 +188,7 @@ proctable_child_init(server_rec * main_server, apr_pool_t * configpool)
                                           main_server->process->pconf)) !=
         APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, main_server,
-                     "mod_fcgid: apr_global_mutex_child_init error");
+                     "apr_global_mutex_child_init error");
         exit(1);
     }
 
@@ -247,7 +247,7 @@ void proctable_lock(request_rec *r)
 
     if ((rv = proctable_lock_internal()) != APR_SUCCESS) {
         ap_log_rerror(APLOG_MARK, APLOG_EMERG, rv, r,
-                      "mod_fcgid: can't lock process table in pid %"
+                      "can't lock process table in pid %"
                       APR_PID_T_FMT,
                       getpid());
         exit(1);
@@ -261,7 +261,7 @@ void proctable_unlock(request_rec *r)
 
     if ((rv = proctable_unlock_internal()) != APR_SUCCESS) {
         ap_log_rerror(APLOG_MARK, APLOG_EMERG, rv, r,
-                      "mod_fcgid: can't unlock process table in pid %"
+                      "can't unlock process table in pid %"
                       APR_PID_T_FMT,
                       getpid());
         exit(1);
@@ -274,7 +274,7 @@ void proctable_pm_lock(server_rec *s)
 
     if (g_global_share->must_exit) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, 0, s,
-                     "mod_fcgid: server is restarted, pid %" APR_PID_T_FMT
+                     "server is restarted, pid %" APR_PID_T_FMT
                      " must exit",
                      getpid());
         kill(getpid(), SIGTERM);
@@ -283,7 +283,7 @@ void proctable_pm_lock(server_rec *s)
     /* Lock error is a fatal error */
     if ((rv = proctable_lock_internal()) != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, s,
-                     "mod_fcgid: can't lock process table in PM, pid %"
+                     "can't lock process table in PM, pid %"
                      APR_PID_T_FMT,
                      getpid());
         exit(1);
@@ -297,7 +297,7 @@ void proctable_pm_unlock(server_rec *s)
 
     if ((rv = proctable_unlock_internal()) != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, s,
-                     "mod_fcgid: can't unlock process table in PM, pid %"
+                     "can't unlock process table in PM, pid %"
                      APR_PID_T_FMT,
                      getpid());
         exit(1);
@@ -315,14 +315,14 @@ void proctable_print_debug_info(server_rec * main_server)
         freecount++;
 
     ap_log_error(APLOG_MARK, APLOG_WARNING, 0, main_server,
-                 "mod_fcgid: total node count: %d, free node count: %d",
+                 "total node count: %d, free node count: %d",
                  FCGID_MAX_APPLICATION, freecount);
 
     for (current_node = &g_proc_array[g_idle_list_header->next_index];
          current_node != g_proc_array;
          current_node = &g_proc_array[current_node->next_index]) {
         ap_log_error(APLOG_MARK, APLOG_WARNING, 0, main_server,
-                     "mod_fcgid: idle node index: %ld",
+                     "idle node index: %ld",
                      (long)(current_node - g_proc_array));
     }
 
@@ -330,7 +330,7 @@ void proctable_print_debug_info(server_rec * main_server)
          current_node != g_proc_array;
          current_node = &g_proc_array[current_node->next_index]) {
         ap_log_error(APLOG_MARK, APLOG_WARNING, 0, main_server,
-                     "mod_fcgid: busy node index: %ld",
+                     "busy node index: %ld",
                      (long)(current_node - g_proc_array));
     }
 
@@ -338,7 +338,7 @@ void proctable_print_debug_info(server_rec * main_server)
          current_node != g_proc_array;
          current_node = &g_proc_array[current_node->next_index]) {
         ap_log_error(APLOG_MARK, APLOG_WARNING, 0, main_server,
-                     "mod_fcgid: error node index: %ld",
+                     "error node index: %ld",
                      (long)(current_node - g_proc_array));
     }
 }

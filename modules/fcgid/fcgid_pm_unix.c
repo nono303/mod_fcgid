@@ -94,21 +94,21 @@ static apr_status_t init_signal(server_rec * main_server)
 
     if (sigaction(SIGTERM, &sa, NULL) < 0) {
         ap_log_error(APLOG_MARK, APLOG_ERR, errno, main_server,
-                     "mod_fcgid: Can't install SIGTERM handler");
+                     "Can't install SIGTERM handler");
         return APR_EGENERAL;
     }
 
     /* Httpd restart */
     if (sigaction(SIGHUP, &sa, NULL) < 0) {
         ap_log_error(APLOG_MARK, APLOG_ERR, errno, main_server,
-                     "mod_fcgid: Can't install SIGHUP handler");
+                     "Can't install SIGHUP handler");
         return APR_EGENERAL;
     }
 
     /* Httpd graceful restart */
     if (sigaction(SIGUSR1, &sa, NULL) < 0) {
         ap_log_error(APLOG_MARK, APLOG_ERR, errno, main_server,
-                     "mod_fcgid: Can't install SIGUSR1 handler");
+                     "Can't install SIGUSR1 handler");
         return APR_EGENERAL;
     }
 
@@ -116,7 +116,7 @@ static apr_status_t init_signal(server_rec * main_server)
     sa.sa_handler = SIG_IGN;
     if (sigaction(SIGPIPE, &sa, NULL) < 0) {
         ap_log_error(APLOG_MARK, APLOG_ERR, errno, main_server,
-                     "mod_fcgid: Can't install SIGPIPE handler");
+                     "Can't install SIGPIPE handler");
         return APR_EGENERAL;
     }
 
@@ -135,7 +135,7 @@ static void fcgid_maint(int reason, void *data, apr_wait_t status)
             && mpm_state != AP_MPMQ_STOPPING) {
             if (status == DAEMON_STARTUP_ERROR) {
                 ap_log_error(APLOG_MARK, APLOG_CRIT, 0, NULL,
-                             "mod_fcgid: fcgid process manager failed to initialize; "
+                             "fcgid process manager failed to initialize; "
                              "stopping httpd");
                 /* mod_fcgid requests will hang due to lack of a process manager;
                  * try to terminate httpd
@@ -145,7 +145,7 @@ static void fcgid_maint(int reason, void *data, apr_wait_t status)
             }
             else {
                 ap_log_error(APLOG_MARK, APLOG_ERR, 0, NULL,
-                             "mod_fcgid: fcgid process manager died, restarting the server");
+                             "fcgid process manager died, restarting the server");
 
                 /* HACK: I can't just call create_process_manager() to
                    restart a process manager, because it will use the dirty
@@ -157,7 +157,7 @@ static void fcgid_maint(int reason, void *data, apr_wait_t status)
                 if (kill(getpid(), SIGHUP) < 0) {
                     ap_log_error(APLOG_MARK, APLOG_EMERG,
                                  apr_get_os_error(), NULL,
-                                 "mod_fcgid: can't send SIGHUP to self");
+                                 "can't send SIGHUP to self");
                     exit(0);
                 }
             }
@@ -175,7 +175,7 @@ static void fcgid_maint(int reason, void *data, apr_wait_t status)
         if (kill(getpid(), SIGHUP) < 0) {
             ap_log_error(APLOG_MARK, APLOG_EMERG,
                          apr_get_os_error(), NULL,
-                         "mod_fcgid: can't send SIGHUP to self");
+                         "can't send SIGHUP to self");
             exit(0);
         }
         break;
@@ -268,11 +268,11 @@ create_process_manager(server_rec * main_server, apr_pool_t * configpool)
         /* I am the child */
         g_pm_pid = getpid();
         ap_log_error(APLOG_MARK, APLOG_INFO, 0, main_server,
-                     "mod_fcgid: Process manager %" APR_PID_T_FMT  " started", getpid());
+                     "Process manager %" APR_PID_T_FMT  " started", getpid());
 
         if ((rv = init_signal(main_server)) != APR_SUCCESS) {
             ap_log_error(APLOG_MARK, APLOG_EMERG, rv, main_server,
-                         "mod_fcgid: can't install signal handler, exiting now");
+                         "can't install signal handler, exiting now");
             exit(DAEMON_STARTUP_ERROR);
         }
 
@@ -288,7 +288,7 @@ create_process_manager(server_rec * main_server, apr_pool_t * configpool)
         if (ap_unixd_config.suexec_enabled) {
             if (getuid() != 0) {
                 ap_log_error(APLOG_MARK, APLOG_EMERG, 0, main_server,
-                             "mod_fcgid: current user is not root while suexec is enabled, exiting now");
+                             "current user is not root while suexec is enabled, exiting now");
                 exit(DAEMON_STARTUP_ERROR);
             }
             suexec_setup_child();
@@ -305,11 +305,11 @@ create_process_manager(server_rec * main_server, apr_pool_t * configpool)
         pm_main(main_server, configpool);
 
         ap_log_error(APLOG_MARK, APLOG_INFO, 0, main_server,
-                     "mod_fcgid: Process manager %" APR_PID_T_FMT " stopped", getpid());
+                     "Process manager %" APR_PID_T_FMT " stopped", getpid());
         exit(0);
     } else if (rv != APR_INPARENT) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, main_server,
-                     "mod_fcgid: Create process manager error");
+                     "Create process manager error");
         exit(1);
     }
 
@@ -333,7 +333,7 @@ procmgr_child_init(server_rec * main_server, apr_pool_t * configpool)
                                           main_server->process->pconf)) !=
         APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_EMERG, rv, main_server,
-                     "mod_fcgid: apr_global_mutex_child_init error for pipe mutex");
+                     "apr_global_mutex_child_init error for pipe mutex");
         exit(1);
     }
 
@@ -371,7 +371,7 @@ procmgr_post_config(server_rec * main_server, apr_pool_t * configpool)
                                          APR_UEXECUTE,
                                          configpool)) != APR_SUCCESS) {
             ap_log_error(APLOG_MARK, APLOG_ERR, rv, main_server,
-                         "mod_fcgid: Can't create unix socket dir %s",
+                         "Can't create unix socket dir %s",
                          sconf->sockname_prefix);
             exit(1);
         }
@@ -391,7 +391,7 @@ procmgr_post_config(server_rec * main_server, apr_pool_t * configpool)
             if (chown(sconf->sockname_prefix,
                       ap_unixd_config.user_id, -1) < 0) {
                 ap_log_error(APLOG_MARK, APLOG_ERR, errno, main_server,
-                             "mod_fcgid: Can't set ownership of unix socket dir %s",
+                             "Can't set ownership of unix socket dir %s",
                              sconf->sockname_prefix);
                 exit(1);
             }
@@ -404,7 +404,7 @@ procmgr_post_config(server_rec * main_server, apr_pool_t * configpool)
         || (rv = apr_file_pipe_create(&g_ap_read_pipe, &g_pm_write_pipe,
                                       configpool))) {
         ap_log_error(APLOG_MARK, APLOG_ERR, rv, main_server,
-                     "mod_fcgid: Can't create pipe between PM and stub");
+                     "Can't create pipe between PM and stub");
         return rv;
     }
 
@@ -472,7 +472,7 @@ apr_status_t procmgr_send_spawn_cmd(fcgid_command * command,
     /* Get the global mutex before posting the request */
     if ((rv = apr_global_mutex_lock(g_pipelock)) != APR_SUCCESS) {
         ap_log_rerror(APLOG_MARK, APLOG_EMERG, rv, r,
-                      "mod_fcgid: can't get pipe mutex");
+                      "can't get pipe mutex");
         exit(0);
     }
 
@@ -481,7 +481,7 @@ apr_status_t procmgr_send_spawn_cmd(fcgid_command * command,
                              NULL)) != APR_SUCCESS) {
         /* Just print some error log and fall through */
         ap_log_rerror(APLOG_MARK, APLOG_WARNING, rv, r,
-                      "mod_fcgid: can't write spawn command");
+                      "can't write spawn command");
     } else {
         /* Wait the finish notify while send the request successfully */
         nbytes = sizeof(notifybyte);
@@ -489,14 +489,14 @@ apr_status_t procmgr_send_spawn_cmd(fcgid_command * command,
              apr_file_read(g_ap_read_pipe, &notifybyte,
                            &nbytes)) != APR_SUCCESS) {
             ap_log_rerror(APLOG_MARK, APLOG_WARNING, rv, r,
-                          "mod_fcgid: can't get notify from process manager");
+                          "can't get notify from process manager");
         }
     }
 
     /* Release the lock */
     if ((rv = apr_global_mutex_unlock(g_pipelock)) != APR_SUCCESS) {
         ap_log_rerror(APLOG_MARK, APLOG_EMERG, rv, r,
-                      "mod_fcgid: can't release pipe mutex");
+                      "can't release pipe mutex");
         exit(0);
     }
 
@@ -513,7 +513,7 @@ apr_status_t procmgr_finish_notify(server_rec * main_server)
          apr_file_write(g_pm_write_pipe, &notifybyte,
                         &nbytes)) != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_WARNING, rv, main_server,
-                     "mod_fcgid: can't send notify from process manager");
+                     "can't send notify from process manager");
     }
 
     return rv;
@@ -539,7 +539,7 @@ apr_status_t procmgr_fetch_cmd(fcgid_command * command,
     /* Log any unexpect result */
     if (rv != APR_SUCCESS && !APR_STATUS_IS_TIMEUP(rv)) {
         ap_log_error(APLOG_MARK, APLOG_WARNING, rv, main_server,
-                     "mod_fcgid: error while waiting for message from pipe");
+                     "error while waiting for message from pipe");
         return rv;
     }
 
