@@ -59,6 +59,7 @@ typedef struct {
     int requests_handled;       /* number of requests process has handled */
     char diewhy;                /* why it die */
     fcgid_cmd_options cmdopts;  /* context-specific configuration */
+	char server_hostname[32];   /* for logging only; ok to truncate */
 } fcgid_procnode;
 
 /* Macros for diewhy */

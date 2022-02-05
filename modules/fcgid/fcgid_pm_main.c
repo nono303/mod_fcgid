@@ -565,6 +565,7 @@ fastcgi_spawn(fcgid_command * command, server_rec * main_server,
     /* no truncation should ever occur */
     AP_DEBUG_ASSERT(sizeof procnode->cmdline > strlen(command->cmdline));
     apr_cpystrn(procnode->cmdline, command->cmdline, sizeof procnode->cmdline);
+	apr_cpystrn(procnode->server_hostname, command->server_hostname, sizeof procnode->server_hostname);
 
     procnode->vhost_id = command->vhost_id;
     procnode->dir_id = command->dir_id;

@@ -19,6 +19,9 @@ Changes with mod_fcgid 2.3.10.1 [nono303 fork]
      https://bz.apache.org/bugzilla/show_bug.cgi?id=61909
      https://bz.apache.org/bugzilla/attachment.cgi?id=35615
 
+  *) 2022-02-05 log refactor
+     add server_hostname to proc_print_exit_info
+
 Changes with mod_fcgid 2.3.10
 
   *) Send Content-Length to backend for chunked request bodies.  PR 53332.

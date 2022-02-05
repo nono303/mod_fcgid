@@ -498,6 +498,8 @@ void proc_print_exit_info(fcgid_procnode * procnode, int exitcode,
 
     /* Print log now */
     ap_log_error(APLOG_MARK, APLOG_INFO, 0, main_server,
-                     "mod_fcgid: process %s(%" APR_PID_T_FMT ") exit(%s), return code %d",
-                     procnode->executable_path, procnode->proc_id.pid, diewhy, exitcode);
+                     "mod_fcgid: server %s:%s(%" APR_PID_T_FMT ") exit(%d) %s",
+                     procnode->server_hostname[0] ?
+                         procnode->server_hostname : "(unknown)",
+                     procnode->executable_path, procnode->proc_id.pid, exitcode, diewhy);
 }
