@@ -169,9 +169,15 @@ void *merge_fcgid_server_config(apr_pool_t * p, void *basev, void *locv)
     return merged;
 }
 
-void *create_fcgid_dir_config(apr_pool_t * p, char *dummy)
+void *create_fcgid_dir_config(apr_pool_t * p, char *context)
 {
+    static int dir_id = 0;
+
     fcgid_dir_conf *config = apr_pcalloc(p, sizeof(fcgid_dir_conf));
+    ++dir_id;
+
+    config->dir_id = dir_id;
+    config->context = context;
 
     config->wrapper_info_hash = apr_hash_make(p);
     /* config->authenticator_info = NULL; */
@@ -180,6 +186,7 @@ void *create_fcgid_dir_config(apr_pool_t * p, char *dummy)
     config->authorizer_authoritative = 1;
     /* config->access_info = NULL; */
     config->access_authoritative = 1;
+    /* config->default_init_env = NULL;*/
     return (void *) config;
 }
 
@@ -189,6 +196,21 @@ void *merge_fcgid_dir_config(apr_pool_t *p, void *basev, void *locv)
     fcgid_dir_conf *local = (fcgid_dir_conf *) locv;
     fcgid_dir_conf *merged =
       (fcgid_dir_conf *) apr_pmemdup(p, local, sizeof(fcgid_dir_conf));
+
+    /* Merge environment variables */
+    if (base->default_init_env == NULL) {
+        /* merged already set to local */
+    }
+    else if (local->default_init_env == NULL) {
+        merged->default_init_env = base->default_init_env;
+    }
+    else {
+        merged->default_init_env =
+          apr_table_copy(p, base->default_init_env);
+        apr_table_overlap(merged->default_init_env,
+                          local->default_init_env,
+                          APR_OVERLAP_TABLES_SET);
+    }
 
     merged->wrapper_info_hash =
       apr_hash_overlay(p, local->wrapper_info_hash,
@@ -570,15 +592,27 @@ static void add_envvar_to_table(apr_table_t *t, apr_pool_t *p,
     apr_table_set(t, name, value ? value : "");
 }
 
-const char *add_default_env_vars(cmd_parms * cmd, void *dummy,
+const char *add_default_env_vars(cmd_parms * cmd, void *dir_config,
                                  const char *name, const char *value)
 {
+    if (cmd->path != NULL) { /* dir context (Directory / Files / Location) */
+        fcgid_dir_conf *dconfig = ap_get_module_config(cmd->context, &fcgid_module);
+
+        if (dconfig->default_init_env == NULL)
+            dconfig->default_init_env = apr_table_make(cmd->pool, 20);
+    
+        add_envvar_to_table(dconfig->default_init_env, cmd->pool, name, value);
+
+        return NULL;
+    }
+
     fcgid_server_conf *config =
         ap_get_module_config(cmd->server->module_config, &fcgid_module);
     if (config->default_init_env == NULL)
         config->default_init_env = apr_table_make(cmd->pool, 20);
-
+    
     add_envvar_to_table(config->default_init_env, cmd->pool, name, value);
+
     return NULL;
 }
 
@@ -935,12 +969,16 @@ fcgid_cmd_conf *get_wrapper_info(const char *cgipath, request_rec * r)
     return NULL;
 }
 
-static int set_cmd_envvars(fcgid_cmd_env *cmdenv, apr_table_t *envvars)
+static int set_cmd_envvars(fcgid_cmd_env *cmdenv, apr_table_t *envvars, apr_table_t *denvvars)
 {
     const apr_array_header_t *envvars_arr;
     const apr_table_entry_t *envvars_entry;
     int i;
     int overflow = 0;
+
+    if (denvvars) { /* directory environment overwrites vhost environment */
+	    envvars = denvvars;
+    }
 
     if (envvars) {
         envvars_arr = apr_table_elts(envvars);
@@ -1106,7 +1144,7 @@ const char *set_cmd_options(cmd_parms *cmd, void *dummy, const char *args)
                             option);
     }
 
-    if ((overflow = set_cmd_envvars(cmdopts->cmdenv, envvars)) != 0) {
+    if ((overflow = set_cmd_envvars(cmdopts->cmdenv, envvars, NULL)) != 0) {
         return apr_psprintf(cmd->pool, "mod_fcgid: environment variable table "
                             "overflow; increase INITENV_CNT in fcgid_pm.h from"
                             " %d to at least %d",
@@ -1122,6 +1160,8 @@ void get_cmd_options(request_rec *r, const char *cmdpath,
                      fcgid_cmd_options *cmdopts,
                      fcgid_cmd_env *cmdenv)
 {
+    fcgid_dir_conf *dconf = ap_get_module_config(r->per_dir_config, &fcgid_module);
+
     fcgid_server_conf *sconf =
         ap_get_module_config(r->server->module_config, &fcgid_module);
     fcgid_cmd_options *cmd_specific = apr_hash_get(sconf->cmdopts_hash,
@@ -1149,7 +1189,7 @@ void get_cmd_options(request_rec *r, const char *cmdpath,
     cmdopts->min_class_process_count = sconf->min_class_process_count;
     cmdopts->proc_lifetime = sconf->proc_lifetime;
 
-    if ((overflow = set_cmd_envvars(cmdenv, sconf->default_init_env)) != 0) {
+    if ((overflow = set_cmd_envvars(cmdenv, sconf->default_init_env, dconf->default_init_env)) != 0) {
         ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
                       "mod_fcgid: %d environment variables dropped; increase "
                       "INITENV_CNT in fcgid_pm.h from %d to at least %d",

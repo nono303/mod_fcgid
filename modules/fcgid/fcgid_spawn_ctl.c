@@ -30,6 +30,7 @@ struct fcgid_stat_node {
     gid_t gid;
     const char *cmdline;
     int vhost_id;
+    int dir_id;
     int score;
     int process_counter;
     int max_class_process_count;
@@ -62,6 +63,7 @@ register_life_death(server_rec * main_server,
             && current_node->deviceid == procnode->deviceid
             && !strcmp(current_node->cmdline, procnode->cmdline)
             && current_node->vhost_id == procnode->vhost_id
+            && current_node->dir_id == procnode->dir_id
             && current_node->uid == procnode->uid
             && current_node->gid == procnode->gid)
             break;
@@ -80,6 +82,7 @@ register_life_death(server_rec * main_server,
         current_node->inode = procnode->inode;
         current_node->cmdline = apr_pstrdup(g_stat_pool, procnode->cmdline);
         current_node->vhost_id = procnode->vhost_id;
+        current_node->dir_id = procnode->dir_id;
         current_node->uid = procnode->uid;
         current_node->gid = procnode->gid;
         current_node->last_stat_time = now;
@@ -179,6 +182,7 @@ int is_spawn_allowed(server_rec * main_server, fcgid_command * command)
             && current_node->deviceid == command->deviceid
             && !strcmp(current_node->cmdline, command->cmdline)
             && current_node->vhost_id == command->vhost_id
+            && current_node->dir_id == command->dir_id
             && current_node->uid == command->uid
             && current_node->gid == command->gid)
             break;
@@ -238,6 +242,7 @@ int is_kill_allowed(server_rec * main_server, fcgid_procnode * procnode)
             && current_node->deviceid == procnode->deviceid
             && !strcmp(current_node->cmdline, procnode->cmdline)
             && current_node->vhost_id == procnode->vhost_id
+            && current_node->dir_id == procnode->dir_id
             && current_node->uid == procnode->uid
             && current_node->gid == procnode->gid)
             break;

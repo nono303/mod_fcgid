@@ -135,6 +135,8 @@ void procmgr_init_spawn_cmd(fcgid_command * command, request_rec * r,
 {
     fcgid_server_conf *sconf =
         ap_get_module_config(r->server->module_config, &fcgid_module);
+    fcgid_dir_conf *dconf =
+        ap_get_module_config(r->per_dir_config, &fcgid_module);
 
     /* no truncation should ever occur */
     AP_DEBUG_ASSERT(sizeof command->cgipath > strlen(cmd_conf->cgipath));
@@ -148,6 +150,8 @@ void procmgr_init_spawn_cmd(fcgid_command * command, request_rec * r,
     command->gid = (gid_t) - 1;
     command->userdir = 0;
     command->vhost_id = sconf->vhost_id;
+    command->dir_id = dconf->dir_id;
+    command->context = dconf->context;
     if (r->server->server_hostname) {
         apr_cpystrn(command->server_hostname, r->server->server_hostname,
                     sizeof command->server_hostname);

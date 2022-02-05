@@ -567,6 +567,8 @@ fastcgi_spawn(fcgid_command * command, server_rec * main_server,
     apr_cpystrn(procnode->cmdline, command->cmdline, sizeof procnode->cmdline);
 
     procnode->vhost_id = command->vhost_id;
+    procnode->dir_id = command->dir_id;
+    procnode->context = command->context;
     procnode->uid = command->uid;
     procnode->gid = command->gid;
     procnode->start_time = procnode->last_active_time = apr_time_now();

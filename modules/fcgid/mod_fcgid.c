@@ -306,6 +306,8 @@ static int fcgidsort(fcgid_procnode **e1, fcgid_procnode **e2)
         return cmp;
     if ((*e1)->vhost_id != (*e2)->vhost_id)
         return (*e1)->vhost_id > (*e2)->vhost_id ? 1 : -1;
+    if ((*e1)->dir_id != (*e2)->dir_id)
+        return (*e1)->dir_id > (*e2)->dir_id ? 1 : -1;
     if ((*e1)->diewhy != (*e2)->diewhy)
         return (*e1)->diewhy > (*e2)->diewhy ? 1 : -1;
     if ((*e1)->node_type != (*e2)->node_type)
@@ -353,6 +355,7 @@ static int fcgid_status_hook(request_rec *r, int flags)
     const char *last_cmdline = "";
     apr_time_t now;
     int last_vhost_id = -1;
+    int last_dir_id = -1;
     const char *basename, *tmpbasename;
     fcgid_procnode *proc_table = proctable_get_table_array();
     fcgid_procnode *error_list_header = proctable_get_error_list();
@@ -425,7 +428,8 @@ static int fcgid_status_hook(request_rec *r, int flags)
         if (current_node->inode != last_inode || current_node->deviceid != last_deviceid
             || current_node->gid != last_gid || current_node->uid != last_uid
             || strcmp(current_node->cmdline, last_cmdline)
-            || current_node->vhost_id != last_vhost_id) {
+            || current_node->vhost_id != last_vhost_id
+	    || current_node->dir_id != last_dir_id) {
             if (index != 0)
                  ap_rputs("</table>\n\n", r);
 
@@ -438,8 +442,8 @@ static int fcgid_status_hook(request_rec *r, int flags)
                 basename++;
 	    else
                 basename = tmpbasename;
-            ap_rprintf(r, "<hr />\n<b>Process: %s</b>&nbsp;&nbsp;(%s)<br />\n",
-                       basename, current_node->cmdline);
+            ap_rprintf(r, "<hr />\n<b>Process: %s</b>&nbsp;&nbsp;(%s at %s)<br />\n",
+                       basename, current_node->cmdline, current_node->context);
 
             /* Create a new table for this process info */
             ap_rputs("\n\n<table border=\"0\"><tr>"
@@ -453,6 +457,7 @@ static int fcgid_status_hook(request_rec *r, int flags)
             last_uid = current_node->uid;
             last_cmdline = current_node->cmdline;
             last_vhost_id = current_node->vhost_id;
+            last_dir_id = current_node->dir_id;
         }
 
         ap_rprintf(r, "<tr><td>%" APR_PID_T_FMT "</td><td>%" APR_TIME_T_FMT "</td><td>%" APR_TIME_T_FMT "</td><td>%d</td><td>%s</td></tr>",
@@ -751,7 +756,7 @@ static const command_rec fcgid_cmds[] = {
                   "a fastcgi application will be killed after handling a request for BusyTimeout"),
     AP_INIT_RAW_ARGS("FcgidCmdOptions", set_cmd_options, NULL, RSRC_CONF,
                      "set processing options for a FastCGI command"),
-    AP_INIT_TAKE12("FcgidInitialEnv", add_default_env_vars, NULL, RSRC_CONF,
+    AP_INIT_TAKE12("FcgidInitialEnv", add_default_env_vars, NULL, ACCESS_CONF | RSRC_CONF,
                    "an environment variable name and optional value to pass to FastCGI."),
     AP_INIT_TAKE1("FcgidMaxProcessesPerClass",
                   set_max_class_process,

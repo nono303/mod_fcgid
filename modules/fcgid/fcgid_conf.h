@@ -130,6 +130,11 @@ typedef struct {
     fcgid_cmd_conf *access_info;
     int access_authoritative;
     int access_authoritative_set;
+    
+    /* context info */
+    apr_table_t *default_init_env;
+    int dir_id;
+    const char *context;
 } fcgid_dir_conf;
 
 /* processing options which are sent to the PM with a spawn request

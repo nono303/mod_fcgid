@@ -11,6 +11,9 @@ Changes with mod_fcgid 2.3.10.1 [nono303 fork]
      https://bz.apache.org/bugzilla/show_bug.cgi?id=57101
      https://bz.apache.org/bugzilla/attachment.cgi?id=32118
 
+  *) Support FcgiInitialEnv in Directory / Location
+     https://bz.apache.org/bugzilla/show_bug.cgi?id=62061
+     https://bz.apache.org/bugzilla/attachment.cgi?id=35707
 
 Changes with mod_fcgid 2.3.10
 

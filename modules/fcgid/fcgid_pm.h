@@ -29,6 +29,8 @@ typedef struct {
      * module may have copied it for per-request customization
      */
     int vhost_id;
+    int dir_id;
+    const char* context;
     char server_hostname[32];   /* for logging only; ok to truncate */
     uid_t uid;                  /* For suEXEC */
     gid_t gid;                  /* For suEXEC */

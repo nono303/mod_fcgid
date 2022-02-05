@@ -82,6 +82,7 @@ static fcgid_procnode *apply_free_procnode(request_rec *r,
             && current_node->deviceid == deviceid
             && !strcmp(current_node->cmdline, cmdline)
             && current_node->vhost_id == command->vhost_id
+            && current_node->dir_id == command->dir_id
             && current_node->uid == uid && current_node->gid == gid) {
             /* Unlink from idle list */
             previous_node->next_index = current_node->next_index;
@@ -162,6 +163,7 @@ static int count_busy_processes(request_rec *r, fcgid_command *command)
             && current_node->deviceid == command->deviceid
             && !strcmp(current_node->cmdline, command->cmdline)
             && current_node->vhost_id == command->vhost_id
+            && current_node->dir_id == command->dir_id
             && current_node->uid == command->uid
             && current_node->gid == command->gid) {
             result++;
@@ -441,7 +443,6 @@ handle_request_ipc(request_rec *r, int role,
     return cond_status;
 }
 
-// patch https://bz.apache.org/bugzilla/attachment.cgi?id=35611
 static int
 handle_request(request_rec * r, int role, fcgid_cmd_conf *cmd_conf,
                apr_bucket_brigade * output_brigade)
@@ -457,10 +458,10 @@ handle_request(request_rec * r, int role, fcgid_cmd_conf *cmd_conf,
     apr_pool_cleanup_register(r->pool, bucket_ctx,
                               bucket_ctx_cleanup, apr_pool_cleanup_null);
     procmgr_init_spawn_cmd(&fcgi_request, r, cmd_conf);
-     bucket_ctx->ipc.connect_timeout =
-         fcgi_request.cmdopts.ipc_connect_timeout;
-     bucket_ctx->ipc.communation_timeout =
-         fcgi_request.cmdopts.ipc_comm_timeout;
+            bucket_ctx->ipc.connect_timeout =
+                fcgi_request.cmdopts.ipc_connect_timeout;
+            bucket_ctx->ipc.communation_timeout =
+                fcgi_request.cmdopts.ipc_comm_timeout;
  
      /* our initial wait time is short */
      wait_msec = FCGID_REQUEST_INITIAL_SLEEP;
@@ -526,7 +527,7 @@ handle_request(request_rec * r, int role, fcgid_cmd_conf *cmd_conf,
            */
         if(i < FCGID_REQUEST_STEPCOUNT){
             try_spawn+=FCGID_REQUEST_STEPSIZE;
-        }
+    }
         if(i < FCGID_REQUEST_SLEEPCOUNT){
             wait_msec+=FCGID_REQUEST_SLEEPSIZE;
         }else{
