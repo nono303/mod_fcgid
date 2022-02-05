@@ -251,3 +251,9 @@ int is_kill_allowed(server_rec * main_server, fcgid_procnode * procnode)
 
     return 1;
 }
+
+void fcgid_errfn (apr_pool_t *p, apr_status_t err, const char *description)
+{
+    ap_log_error(APLOG_MARK, APLOG_ERR, err, NULL,
+                "mod_fcgid: error spawning process: %s", description);
+}

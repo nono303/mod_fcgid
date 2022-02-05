@@ -146,7 +146,8 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
                                      APR_NO_FILE, APR_NO_FILE)) != APR_SUCCESS
         || (rv = apr_os_file_put(&file, &listen_handle, 0,
                                  procnode->proc_pool)) != APR_SUCCESS
-        || (rv = apr_procattr_child_in_set(proc_attr, file, NULL))
+        || (rv = apr_procattr_child_errfn_set(proc_attr, fcgid_errfn)) != APR_SUCCESS
+		|| (rv = apr_procattr_child_in_set(proc_attr, file, NULL))
                != APR_SUCCESS)
     {
         ap_log_error(APLOG_MARK, APLOG_WARNING, rv, procinfo->main_server,

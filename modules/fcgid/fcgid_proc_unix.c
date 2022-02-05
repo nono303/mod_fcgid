@@ -357,7 +357,8 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
         || (rv = apr_procattr_cmdtype_set(procattr, APR_PROGRAM)) != APR_SUCCESS
         || (rv = apr_os_file_put(&file, &unix_socket, 0,
                                  procnode->proc_pool)) != APR_SUCCESS
-        || (rv = apr_procattr_child_in_set(procattr, file, NULL)) != APR_SUCCESS) {
+        || (rv = apr_procattr_child_errfn_set(procattr, fcgid_errfn)) != APR_SUCCESS
+		|| (rv = apr_procattr_child_in_set(procattr, file, NULL)) != APR_SUCCESS) {
         ap_log_error(APLOG_MARK, APLOG_ERR, rv, procinfo->main_server,
                      "mod_fcgid: couldn't set child process attributes: %s",
                      unix_addr.sun_path);

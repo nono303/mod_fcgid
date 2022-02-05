@@ -26,5 +26,6 @@ void register_termination(server_rec * main_server,
 void register_spawn(server_rec * main_server, fcgid_procnode * procnode);
 int is_spawn_allowed(server_rec * main_server, fcgid_command * command);
 int is_kill_allowed(server_rec * main_server, fcgid_procnode * procnode);
+void fcgid_errfn (apr_pool_t *p, apr_status_t err, const char *description);
 
 #endif
