@@ -15,6 +15,10 @@ Changes with mod_fcgid 2.3.10.1 [nono303 fork]
      https://bz.apache.org/bugzilla/show_bug.cgi?id=62061
      https://bz.apache.org/bugzilla/attachment.cgi?id=35707
 
+  *) fix to write the entire stderr to the logfile
+     https://bz.apache.org/bugzilla/show_bug.cgi?id=61909
+     https://bz.apache.org/bugzilla/attachment.cgi?id=35615
+
 Changes with mod_fcgid 2.3.10
 
   *) Send Content-Length to backend for chunked request bodies.  PR 53332.

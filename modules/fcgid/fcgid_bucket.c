@@ -20,6 +20,8 @@
 #include "fcgid_bridge.h"
 
 #define FCGID_FEED_LEN 8192
+/* fcgid_feed_data reads up to 8k from the fastcgi process into 
+ * a heap bucket */
 static apr_status_t fcgid_feed_data(fcgid_bucket_ctx * ctx,
                                     apr_bucket_alloc_t * bucketalloc,
                                     char **buffer, apr_size_t * bufferlen)
@@ -43,7 +45,8 @@ static apr_status_t fcgid_feed_data(fcgid_bucket_ctx * ctx,
                                    apr_bucket_free, bucketalloc);
         if (*bufferlen != FCGID_FEED_LEN) {
             apr_bucket *buckettmp;
-
+            /* not all of the newly created bucket was used, so 
+             * split the bucket and remove the remainder */
             apr_bucket_split(ctx->buffer, *bufferlen);
             buckettmp = APR_BUCKET_NEXT(ctx->buffer);
             apr_bucket_delete(buckettmp);
@@ -112,50 +115,92 @@ static apr_status_t fcgid_header_bucket_read(apr_bucket * b,
     if (header.type == FCGI_STDERR) {
         char *logbuf = apr_bucket_alloc(APR_BUCKET_BUFF_SIZE, b->list);
         char *line;
-        apr_size_t hasput;
+        apr_size_t hasputbuf;
 
+        /* 0-pad the logbuf */
         memset(logbuf, 0, APR_BUCKET_BUFF_SIZE);
 
         hasread = 0;
-        hasput = 0;
+        hasputbuf = 0;
         while (hasread < bodysize) {
             char *buffer;
-            apr_size_t bufferlen, canput, willput;
 
-            /* Feed some data if necessary */
-            if ((rv =
-                 fcgid_feed_data(ctx, b->list, &buffer,
-                                 &bufferlen)) != APR_SUCCESS) {
-                apr_bucket_free(logbuf);
-                return rv;
+            while (hasread < bodysize 
+                   && hasputbuf < (APR_BUCKET_BUFF_SIZE-1)) {
+                apr_size_t bufferlen, canput, willput;
+
+                /* Feed some data if necessary */
+                if ((rv =
+                     fcgid_feed_data(ctx, b->list, &buffer,
+                                     &bufferlen)) != APR_SUCCESS) {
+                    apr_bucket_free(logbuf);
+                    return rv;
+                }
+
+                /* canput is how much data is available for reading,
+                 * either the remaining body size or the max buffer size. 
+                 * This because we can read more than the bodysize 
+                 * (the nex factcgi packet) */
+                canput = fcgid_min(bufferlen, bodysize - hasread);
+                /* willput is what we will actually write to the 
+                 * buffer (which is limited by buffer size) the 
+                 * remaining data will stay in the bucket */
+                willput = fcgid_min(canput, 
+                                    APR_BUCKET_BUFF_SIZE - hasputbuf - 1);
+                memcpy(logbuf + hasputbuf, buffer, willput);
+                hasread += willput;
+                hasputbuf += willput;
+                
+                /* Ignore the "willput" bytes */
+                fcgid_ignore_bytes(ctx, willput);
             }
 
-            canput = fcgid_min(bufferlen, bodysize - hasread);
-            willput =
-                fcgid_min(canput, APR_BUCKET_BUFF_SIZE - hasput - 1);
-            memcpy(logbuf + hasput, buffer, willput);
-            hasread += canput;
-            hasput += willput;
-
-            /* Ignore the "canput" bytes */
-            fcgid_ignore_bytes(ctx, canput);
-        }
-
-        /* Now I get the log data, write log and release the buffer */
-        line = logbuf;
-        while (*line) {
-            char *end = strpbrk(line, "\r\n");
-
-            if (end != NULL) {
-                *end = '\0';
+            /* Now I get the log data, write log and release the buffer */
+            line = logbuf;
+            while (*line) {
+                /* find the first occurence of \r or \n */
+                char *end = strpbrk(line, "\r\n");
+                /* and replace by string terminator */
+                if (end != NULL) {
+                    *end = '\0';
+                } else {
+                    /* did not detect anymore newlines */
+                    if(line != logbuf && hasread < bodysize){
+                        /* if not yet done with the body because buffer was 
+                         * full AND we did detect at least one linebreak
+                         * then we try to get more STDERR data so we won't
+                         * break up errorlines unnessesary */
+                        hasputbuf = strlen(line);
+                        memmove(logbuf, line, hasputbuf);
+                        memset(logbuf + hasputbuf, 0,
+                               APR_BUCKET_BUFF_SIZE - hasputbuf);
+                        break;
+                    }
+                }
+                ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, ctx->ipc.request,
+                              "mod_fcgid: stderr: %s", line);
+                /* if we did not find \r or \n then we're done 
+                 * (we hit the end of the logbuf) */
+                if (end == NULL) {
+                    /* 0-pad the logbuf */
+                    memset(logbuf, 0, APR_BUCKET_BUFF_SIZE);
+                    hasputbuf = 0;
+                    break;
+                }
+                /* skip past our inserted string terminator */
+                ++end;
+                /* and skip all \r or \n characters at the beginning 
+                 * of the next part of logbuf */
+                line = end + strspn(end, "\r\n");
+                if(!*line && hasread < bodysize){
+                    /* okay, our logbuf ends with a newline but we still 
+                     * need to process some more data. This is an edge 
+                     * case but we need to clear the logbuf. */
+                    memset(logbuf, 0, APR_BUCKET_BUFF_SIZE);
+                    hasputbuf = 0;
+                }
             }
-            ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, ctx->ipc.request,
-                          "mod_fcgid: stderr: %s", line);
-            if (end == NULL) {
-                break;
-            }
-            ++end;
-            line = end + strspn(end, "\r\n");
+
         }
 
         apr_bucket_free(logbuf);
