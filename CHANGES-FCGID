@@ -1,4 +1,17 @@
                                                          -*- coding: utf-8 -*-
+Changes with mod_fcgid 2.3.10.1 [nono303 fork]
+
+  *) 2022-02-05 r1897787 from http://svn.apache.org/repos/asf
+
+  *) Rewrite handle_request in fcgid_bridge.c to fix 1sec delay
+     https://bz.apache.org/bugzilla/show_bug.cgi?id=53693
+     https://bz.apache.org/bugzilla/attachment.cgi?id=35611
+
+  *) improves error reporting
+     https://bz.apache.org/bugzilla/show_bug.cgi?id=57101
+     https://bz.apache.org/bugzilla/attachment.cgi?id=32118
+
+
 Changes with mod_fcgid 2.3.10
 
   *) Send Content-Length to backend for chunked request bodies.  PR 53332.
