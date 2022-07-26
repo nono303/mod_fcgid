@@ -102,6 +102,11 @@ static void scan_idlelist(server_rec * main_server)
             /* Link to error list */
             current_node->next_index = error_list_header->next_index;
             error_list_header->next_index = current_node - proc_table;
+
+            /* is_kill_allowed() does not update process counts - so
+            * only kill one process at a time to respect
+            * FcgidMinProcessesPerClass */
+            break;
         }
         else
             previous_node = current_node;
