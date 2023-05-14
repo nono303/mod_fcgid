@@ -1,0 +1,20 @@
+2023-05-14_16-50-09 ####### BEGIN TOOL 'bininfo' vs17 x86 avx ###########################
+************************************
+ext:      [exe,dll,so]
+checkavx: ON
+recurse:  ON
+>>>>>> C:/sdk/src/mod_fcgid/bin <<<<<<
+filename                                  date              x   link  set           cl     pver      pdb ©   product                               description
+/vc15/x64/mod_fcgid.so                    14/05/2023 16:49  64  ltcg                14.16  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x64 vcver:14.16[vc15] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vc15/x64-avx/mod_fcgid.so                14/05/2023 16:49  64  ltcg  avx (84)      14.16  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x64-avx vcver:14.16[vc15] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vc15/x86/mod_fcgid.so                    14/05/2023 16:49  32  ltcg                14.16  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x86 vcver:14.16[vc15] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vc15/x86-avx/mod_fcgid.so                14/05/2023 16:49  32  ltcg  avx (40)      14.16  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x86-avx vcver:14.16[vc15] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vs16/x64/mod_fcgid.so                    14/05/2023 16:49  64  ltcg                14.29  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x64 vcver:14.29[vs16] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vs16/x64-avx/mod_fcgid.so                14/05/2023 16:49  64  ltcg  avx (128)     14.29  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x64-avx vcver:14.29[vs16] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vs16/x86/mod_fcgid.so                    14/05/2023 16:49  32  ltcg                14.29  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x86 vcver:14.29[vs16] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vs16/x86-avx/mod_fcgid.so                14/05/2023 16:49  32  ltcg  avx (38)      14.29  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x86-avx vcver:14.29[vs16] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vs17/x64/mod_fcgid.so                    14/05/2023 16:49  64  ltcg                14.36  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x64 vcver:14.36[vs17] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vs17/x64-avx/mod_fcgid.so                14/05/2023 16:49  64  ltcg  avx (128)     14.36  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x64-avx vcver:14.36[vs17] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vs17/x86/mod_fcgid.so                    14/05/2023 16:49  32  ltcg                14.36  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x86 vcver:14.36[vs17] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+/vs17/x86-avx/mod_fcgid.so                14/05/2023 16:49  32  ltcg  avx (38)      14.36  2.3.10.3  OK  OK  httpd:mod_fcgid                       arch:x86-avx vcver:14.36[vs17] commit:72a72a1 branch:master date:2023-05-14 httpd:2.4.57
+2023-05-14_16-50-16 #######  END  TOOL 'bininfo' vs17 x86 avx ###########################
