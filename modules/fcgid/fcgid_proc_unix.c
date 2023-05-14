@@ -418,7 +418,12 @@ static apr_status_t proc_kill_internal(fcgid_procnode *procnode, int sig)
         log_setid_failure("mod_fcgid PM", "effective uid", 0);
         _exit(1);
     }
-    rv = apr_proc_kill(&(procnode->proc_id), sig);
+    //rv = apr_proc_kill(&(procnode->proc_id), sig);
+    if (procnode->proc_id.pid != -1) {
+       rv = apr_proc_kill(&(procnode->proc_id), sig);
+    } else {
+       rv = APR_SUCCESS;
+    }
     if (ap_unixd_config.suexec_enabled && seteuid(ap_unixd_config.user_id) != 0) {
         /* can't drop privileges after signalling (should not occur); do NOT
          * proceed any further as euid(0)!
