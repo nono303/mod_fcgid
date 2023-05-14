@@ -19,12 +19,12 @@
 #define FCGID_CONF_H
 
 #define MODFCGID_COPYRIGHT \
-  "Copyright 2009-2020 The Apache Software Foundation."
+  "Copyright 2009-2023 The Apache Software Foundation."
 
 #define MODFCGID_VERSION_MAJOR  2
 #define MODFCGID_VERSION_MINOR  3
 #define MODFCGID_VERSION_SUBVER 10
-#define MODFCGID_VERSION_DEV    1
+#define MODFCGID_VERSION_DEV    3
 
 #if MODFCGID_VERSION_DEV
 #define MODFCGID_VERSION_DEVSTR "-dev"

@@ -1,4 +1,17 @@
                                                          -*- coding: utf-8 -*-
+Changes with mod_fcgid 2.3.10.3 [nono303 fork]
+
+  *) 2023-05-14 Case 49021: Apply patch provided by CloudLinux to limit process signaling
+     to processes that have actually been started 
+     2011-04-19 [John Lightsey]
+     https://github.com/CpanelInc/mod_fcgid/blob/master/SOURCES/0001-only_signal_running.patch
+
+Changes with mod_fcgid 2.3.10.2 [nono303 fork]
+
+  *) 2022-07-26 workaround in scan_idlelist() to always respect FcgidMinProcessesPerClass
+  2016-05-24 [Tomaž Šolc]
+  https://bz.apache.org/bugzilla/show_bug.cgi?id=58799
+
 Changes with mod_fcgid 2.3.10.1 [nono303 fork]
 
   *) 2022-02-05 r1897787 from http://svn.apache.org/repos/asf
@@ -314,4 +327,4 @@ Changes with mod_fcgid 2.3.1
      <gabriel oxeva.fr>]
 
 Note: A log of changes released before moving to the ASF (releases 2.2 and 
-earlier) is in the file ChangeLog.
+earlier) is in the file /modules/fcgid/ChangeLog

@@ -4,10 +4,10 @@ forked from :  https://github.com/pagespeed/mod_fcgid
 fixes : https://github.com/pagespeed/mod_fcgid/compare/master...nono303:mod_fcgid:master 
 
 ----
-### Version [2.3.10.2](https://github.com/nono303/mod_fcgid/releases/tag/2.3.10.2)
-> 2022-07-26 - commit
+### Version [2.3.10.3](https://github.com/nono303/mod_fcgid/releases/tag/2.3.10.3)
+> 2023-05-14 - commit
 >
-> 2023-05-14-16 - build
+> 2023-05-14 - build
 
 - **VS17** toolset: 14.36.32530
 - **VS16** toolset: 14.29.30133
@@ -15,14 +15,6 @@ fixes : https://github.com/pagespeed/mod_fcgid/compare/master...nono303:mod_fcgi
 - MSVC redist:  [x86](https://aka.ms/vs/16/release/vc_redist.x86.exe) - [x64](https://aka.ms/vs/16/release/vc_redist.x64.exe)
 - Window Kit: 10.0.22621.0
 - **[AVX](https://msdn.microsoft.com/fr-fr/library/jj620901.aspx) releases** _in specified directory_
-
-|          | x86  | x64  |
-| -------- | ---- | ---- |
-| **VS17** | ❌    | ✅ |
-| **VS16** | ❌    | ❌ |
-| **VC15** | ❌    | ❌ |
-
-> _just open an issue if you need a release not present_
 
 **Build Scripts** 
 
@@ -35,7 +27,7 @@ fixes : https://github.com/pagespeed/mod_fcgid/compare/master...nono303:mod_fcgi
 
 > * All dependencies are built from sources in the same context
 >
-> * Check it with`dumpbin /DEPENDENTS mod_md.so`
+> * Check it with`dumpbin /DEPENDENTS mod_fcgid.so`
 
 - [apr 1.8.0-dev](https://github.com/apache/apr) - `libapr-1.dll`
 - [apr-util 1.7.0-dev](https://github.com/apache/apr-util) - `libaprutil-1.dll`
