@@ -233,6 +233,12 @@ apr_status_t proc_spawn_process(const char *cmdline, fcgid_proc_info *procinfo,
         return APR_EGENERAL;
     }
 
+    if (wargv[0] == NULL) {
+        ap_log_error(APLOG_MARK, APLOG_ERR, 0, main_server,
+                     "mod_fcgid: wargv[0] is NULL. Handle SIGSEGV");
+        return APR_EGENERAL;
+    }
+
     apr_cpystrn(procnode->socket_path, unix_addr.sun_path,
                 sizeof(procnode->socket_path));
 

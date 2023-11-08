@@ -465,7 +465,7 @@ void procmgr_init_spawn_cmd(fcgid_command * command, request_rec * r,
 apr_status_t procmgr_send_spawn_cmd(fcgid_command * command,
                                     request_rec * r)
 {
-    apr_status_t rv;
+    apr_status_t rv, spawn_rv;
     char notifybyte;
     apr_size_t nbytes = sizeof(*command);
 
@@ -476,7 +476,7 @@ apr_status_t procmgr_send_spawn_cmd(fcgid_command * command,
         exit(0);
     }
 
-    if ((rv =
+    if ((rv = spawn_rv =
          apr_file_write_full(g_ap_write_pipe, command, nbytes,
                              NULL)) != APR_SUCCESS) {
         /* Just print some error log and fall through */
@@ -498,6 +498,12 @@ apr_status_t procmgr_send_spawn_cmd(fcgid_command * command,
         ap_log_rerror(APLOG_MARK, APLOG_EMERG, rv, r,
                       "can't release pipe mutex");
         exit(0);
+    }
+
+    if (spawn_rv != APR_SUCCESS) {
+        ap_log_rerror(APLOG_MARK, APLOG_WARNING, rv, r,
+                      "mod_fcgid: returning spawn error");
+        return spawn_rv;
     }
 
     return APR_SUCCESS;
