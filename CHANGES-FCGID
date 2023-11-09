@@ -1,5 +1,12 @@
                                                          -*- coding: utf-8 -*-
-Changes with mod_fcgid 2.3.10.3 [nono303 fork]
+Changes with mod_fcgid 2.3.10.4 [nono303 fork]
+
+  *) 2023-11-08 Case 67504: mod_fcgid can segfault at high memory utilization (Cannot allocate memory)
+     Apply patch provided by gknw to Handle segmentation fault (Linux only)
+     https://bz.apache.org/bugzilla/attachment.cgi?id=39067&action=diff
+     https://bz.apache.org/bugzilla/show_bug.cgi?id=67504
+     
+ Changes with mod_fcgid 2.3.10.3 [nono303 fork]
 
   *) 2023-05-14 Case 49021: Apply patch provided by CloudLinux to limit process signaling
      to processes that have actually been started 
