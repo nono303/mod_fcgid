@@ -340,12 +340,15 @@ static void scan_errorlist(server_rec * main_server)
         else {
 #ifndef WIN32
             ap_log_error(APLOG_MARK, APLOG_WARNING, 0, main_server,
-#else
-            ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, main_server,
-#endif
                          "process %" APR_PID_T_FMT
                          " graceful kill fail, sending SIGKILL",
                          current_node->proc_id.pid);
+#else
+            ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, main_server,
+                         "process %" APR_PID_T_FMT
+                         " graceful kill fail, sending SIGKILL",
+                         current_node->proc_id.pid);
+#endif
             proc_kill_force(current_node, main_server);
         }
     }
