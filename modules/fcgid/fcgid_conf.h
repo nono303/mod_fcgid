@@ -144,7 +144,7 @@ typedef struct {
  */
 #define INITENV_KEY_LEN 64
 #define INITENV_VAL_LEN 256
-#define INITENV_CNT 64
+#define INITENV_CNT 256
 typedef struct {
     char initenv_key[INITENV_CNT][INITENV_KEY_LEN];
     char initenv_val[INITENV_CNT][INITENV_VAL_LEN];
