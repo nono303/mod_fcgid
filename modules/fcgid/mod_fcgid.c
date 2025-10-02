@@ -362,7 +362,7 @@ static int fcgid_status_hook(request_rec *r, int flags)
     fcgid_procnode *idle_list_header = proctable_get_idle_list();
     fcgid_procnode *busy_list_header = proctable_get_busy_list();
 
-    if ((flags & AP_STATUS_SHORT) || (proc_table == NULL))
+    if (proc_table == NULL)
         return OK;
 
     proctable_lock(r);
@@ -421,35 +421,43 @@ static int fcgid_status_hook(request_rec *r, int flags)
               (int (*)(const void *, const void *))fcgidsort);
 
     /* Output */
-    ap_rputs("<hr />\n<h1>mod_fcgid status:</h1>\n", r);
-    ap_rprintf(r, "Total FastCGI processes: %d\n", num_ent);
+    if (!(flags & AP_STATUS_SHORT)) {
+        ap_rputs("<hr />\n<h3>FastCGI</h3>\n", r);
+        ap_rprintf(r, "Total FastCGI processes: %d\n", num_ent);
+    } else {
+        ap_rprintf(r, "FcgiTotalProcesses: %d\n", num_ent);
+    }
     for (index = 0; index < num_ent; index++) {
-    	current_node = ar[index];
+        current_node = ar[index];
         if (current_node->inode != last_inode || current_node->deviceid != last_deviceid
             || current_node->gid != last_gid || current_node->uid != last_uid
             || strcmp(current_node->cmdline, last_cmdline)
             || current_node->vhost_id != last_vhost_id
-	    || current_node->dir_id != last_dir_id) {
-            if (index != 0)
+        || current_node->dir_id != last_dir_id) {
+            if (index != 0 && !(flags & AP_STATUS_SHORT))
                  ap_rputs("</table>\n\n", r);
 
             /* Print executable path basename */
-	    tmpbasename = ap_strrchr_c(current_node->executable_path, '/');
-	    if (tmpbasename != NULL)
+        tmpbasename = ap_strrchr_c(current_node->executable_path, '/');
+        if (tmpbasename != NULL)
                 tmpbasename++;
             basename = ap_strrchr_c(tmpbasename, '\\');
             if (basename != NULL)
                 basename++;
-	    else
+        else
                 basename = tmpbasename;
-            ap_rprintf(r, "<hr />\n<b>Process: %s</b>&nbsp;&nbsp;(%s at %s)<br />\n",
-                       basename, current_node->cmdline, current_node->context);
+            if (!(flags & AP_STATUS_SHORT)) {
+                ap_rprintf(r, "<br>&nbsp;&nbsp;&nbsp;<span style='font-family:monospace;'>%s</span>",
+                           current_node->cmdline);
 
-            /* Create a new table for this process info */
-            ap_rputs("\n\n<table border=\"0\"><tr>"
-                     "<th>Pid</th><th>Active</th><th>Idle</th>"
-                     "<th>Accesses</th><th>State</th>"
-                     "</tr>\n", r);
+                /* Create a new table for this process info */
+                ap_rputs("\n\n<table border=\"0\"><tr>"
+                         "<th>Pid</th><th>Active</th><th>Idle</th>"
+                         "<th>Accesses</th><th>State</th>"
+                         "</tr>\n", r);
+            } else {
+                ap_rputs("FcgiJsonProcesses:[",r);
+            }
 
             last_inode = current_node->inode;
             last_deviceid = current_node->deviceid;
@@ -459,19 +467,42 @@ static int fcgid_status_hook(request_rec *r, int flags)
             last_vhost_id = current_node->vhost_id;
             last_dir_id = current_node->dir_id;
         }
-
-        ap_rprintf(r, "<tr><td>%" APR_PID_T_FMT "</td><td>%" APR_TIME_T_FMT "</td><td>%" APR_TIME_T_FMT "</td><td>%d</td><td>%s</td></tr>",
-                   current_node->proc_id.pid,
-                   apr_time_sec(now - current_node->start_time),
-                   apr_time_sec(now - current_node->last_active_time),
-                   current_node->requests_handled,
-                   get_state_desc(current_node));
+        if (!(flags & AP_STATUS_SHORT)) {
+            ap_rprintf(r, "<tr><td>%" APR_PID_T_FMT "</td><td>%" APR_TIME_T_FMT "</td><td>%" APR_TIME_T_FMT "</td><td>%d</td><td>%s</td></tr>",
+                       current_node->proc_id.pid,
+                       apr_time_sec(now - current_node->start_time),
+                       apr_time_sec(now - current_node->last_active_time),
+                       current_node->requests_handled,
+                       get_state_desc(current_node));
+        } else {
+            /*
+			array / csv style: one line per process
+			ap_rprintf(r, "FcgiProcess[%d]:%" APR_PID_T_FMT ";%" APR_TIME_T_FMT ";%" APR_TIME_T_FMT ";%d;%s\n",
+                       index,
+                       current_node->proc_id.pid,
+                       apr_time_sec(now - current_node->start_time),
+                       apr_time_sec(now - current_node->last_active_time),
+                       current_node->requests_handled,
+                       get_state_desc(current_node));
+            */
+            if(index != 0)
+                ap_rputs(",",r);
+            ap_rprintf(r, "{\"pid\":%" APR_PID_T_FMT ",\"active\":%" APR_TIME_T_FMT ",\"idle\":%" APR_TIME_T_FMT ",\"accesses\":%d,\"state\":\"%s\"}",
+                       current_node->proc_id.pid,
+                       apr_time_sec(now - current_node->start_time),
+                       apr_time_sec(now - current_node->last_active_time),
+                       current_node->requests_handled,
+                       get_state_desc(current_node));
+        }
     }
     if (num_ent != 0) {
-        ap_rputs("</table>\n\n", r);
-        ap_rputs("<hr>\n"
-                 "<b>Active</b> and <b>Idle</b> are time active and time since\n"
-                 "last request, in seconds.\n", r);
+        if(!(flags & AP_STATUS_SHORT)){
+            ap_rputs("</table>\n\n", r);
+            ap_rputs("&nbsp;&nbsp;&nbsp;<em><b>Active</b> and <b>Idle</b> are time active and time since\n"
+                     "last request, in seconds.</em>\n", r);
+        } else {
+            ap_rputs("]\n",r);    
+        }
     }
 
     return OK;
