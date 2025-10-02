@@ -456,7 +456,7 @@ static int fcgid_status_hook(request_rec *r, int flags)
                          "<th>Accesses</th><th>State</th>"
                          "</tr>\n", r);
             } else {
-                ap_rputs("FcgiJsonProcesses:[",r);
+                ap_rputs("FcgiJsonProcesses: [",r);
             }
 
             last_inode = current_node->inode;
